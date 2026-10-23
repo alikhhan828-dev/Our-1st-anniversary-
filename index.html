@@ -1,281 +1,554 @@
-```html
 <!DOCTYPE html>
-<html lang="hi" class="h-full">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Happy 1st Anniversary My Love</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Canvas Confetti CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        rose: {
-                            50: '#fff1f2',
-                            100: '#ffe4e6',
-                            200: '#fecdd3',
-                            300: '#fda4af',
-                            400: '#fb7185',
-                            500: '#f43f5e',
-                            600: '#e11d48',
-                            700: '#be123c',
-                            800: '#9f1239',
-                            900: '#881337',
-                        },
-                        gold: '#d4af37',
-                        burgundy: '#4a0e17'
-                    },
-                    fontFamily: {
-                        cursive: ['"Dancing Script"', 'cursive'],
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy 1st Anniversary</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Custom animations & styles */
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(135deg, #2b080c 0%, #4a0e17 50%, #1f0407 100%);
-            color: #fecdd3;
-            overflow-x: hidden;
+        :root {
+            --bg-color: #fff5f6;
+            --card-bg: #ffffff;
+            --accent-color: #ff6b81;
+            --accent-hover: #ff4757;
+            --text-main: #2f3542;
+            --text-muted: #747d8c;
+            --shadow: 0 10px 30px rgba(255, 107, 129, 0.15);
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Floating background canvas */
-        #particleCanvas {
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px 15px;
+            overflow-x: hidden;
+        }
+
+        /* Password Overlay */
+        #password-overlay {
             position: fixed;
             top: 0;
             left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-color);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .password-card {
+            background: var(--card-bg);
+            padding: 35px 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+            max-width: 350px;
             width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
+            border: 1px solid rgba(255, 107, 129, 0.2);
         }
 
-        .cursive-font {
+        .password-card h2 {
             font-family: 'Dancing Script', cursive;
+            font-size: 2.2rem;
+            color: var(--accent-color);
+            margin-bottom: 15px;
         }
 
-        /* Glassmorphism Card */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.07);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        .password-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
         }
 
-        /* Perspective for flip cards */
-        .perspective-1000 {
-            perspective: 1000px;
-        }
-        .transform-style-3d {
-            transform-style: preserve-3d;
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .rotate-y-180 {
-            transform: rotateY(180deg);
-        }
-        .backface-hidden {
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
-        }
-
-        /* Scratch Card Canvas */
-        #scratchCanvas {
-            border-radius: 1rem;
-            touch-action: none;
-            cursor: pointer;
-        }
-
-        /* Scrollbar aesthetics */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.2);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(244, 63, 94, 0.5);
+        .password-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ffeaa7;
             border-radius: 10px;
+            font-size: 1.1rem;
+            text-align: center;
+            outline: none;
+            margin-bottom: 15px;
+            letter-spacing: 4px;
+            transition: border-color 0.3s;
         }
 
-        /* Glowing Pulse Animation */
-        @keyframes subtleGlow {
-            0%, 100% { box-shadow: 0 0 15px rgba(244, 63, 94, 0.3); }
-            50% { box-shadow: 0 0 25px rgba(244, 63, 94, 0.6); }
+        .password-input:focus {
+            border-color: var(--accent-color);
         }
-        .glow-effect {
-            animation: subtleGlow 3s infinite;
+
+        .password-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+
+        .password-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .error-msg {
+            color: #ff4757;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 500px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            padding-bottom: 40px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 20px 10px 10px 10px;
+        }
+
+        header h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.8rem;
+            color: var(--accent-color);
+            line-height: 1.2;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+
+        /* Sections */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 22px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 107, 129, 0.1);
+        }
+
+        .section-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.8rem;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        /* Counter */
+        .counter-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            text-align: center;
+        }
+
+        .counter-box {
+            background: #fff0f3;
+            padding: 12px 5px;
+            border-radius: 12px;
+        }
+
+        .counter-number {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        .counter-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Timeline */
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: 5px;
+            bottom: 5px;
+            width: 2px;
+            background: #ffeaa7;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -15px;
+            top: 6px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent-color);
+        }
+
+        .timeline-date {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        .timeline-text {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            margin-top: 2px;
+        }
+
+        /* Open When Grid (Square) */
+        .open-when-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .letter-square {
+            aspect-ratio: 1 / 1;
+            background: #fff0f3;
+            border: 2px dashed var(--accent-color);
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .letter-square:active {
+            transform: scale(0.96);
+            background: #ffe0e6;
+        }
+
+        .letter-square .icon {
+            font-size: 1.8rem;
+            margin-bottom: 6px;
+        }
+
+        .letter-square .title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1.2;
+        }
+
+        /* Modal for Letters */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.4);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 10000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: var(--radius);
+            max-width: 400px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: var(--shadow);
+        }
+
+        .modal-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.8rem;
+            color: var(--accent-color);
+            margin-bottom: 12px;
+        }
+
+        .modal-body {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-main);
+            white-space: pre-line;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        /* Cards List (Why I Love You) */
+        .cards-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .love-card {
+            background: #fafafa;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border-left: 4px solid var(--accent-color);
+            font-size: 0.9rem;
+        }
+
+        /* Coupons Grid */
+        .coupons-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .coupon-card {
+            background: #fff8e7;
+            border: 1px dashed #fdcb6e;
+            border-radius: 12px;
+            padding: 12px 10px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #d63031;
         }
     </style>
 </head>
-<body class="min-h-full relative pb-12">
+<body>
 
-    <!-- Floating Background Hearts Canvas -->
-    <canvas id="particleCanvas"></canvas>
-
-    <!-- Top Music & Floating Action Controls -->
-    <div class="fixed top-4 right-4 z-50 flex items-center gap-2">
-        <button id="musicToggle" onclick="toggleMusic()" class="glass-card p-3 rounded-full text-rose-300 hover:text-white hover:bg-rose-600/40 transition-all flex items-center justify-center w-12 h-12 shadow-lg">
-            <i id="musicIcon" class="fas fa-music text-lg"></i>
-        </button>
-        <button onclick="triggerHearts()" class="glass-card p-3 rounded-full text-rose-300 hover:text-white hover:bg-rose-600/40 transition-all flex items-center justify-center w-12 h-12 shadow-lg glow-effect">
-            <i class="fas fa-heart text-lg text-rose-500 animate-pulse"></i>
-        </button>
+    <!-- Password Lock Screen -->
+    <div id="password-overlay">
+        <div class="password-card">
+            <h2>Enter Secret Password ❤️</h2>
+            <p>Saraf mere aur tumhare liye hai ye website</p>
+            <input type="password" id="passInput" class="password-input" placeholder="Passcode" maxlength="6">
+            <button class="password-btn" onclick="checkPassword()">Unlock Website</button>
+            <div id="errorMsg" class="error-msg">Galat password firse try karo</div>
+        </div>
     </div>
 
-    <!-- MAIN CONTAINER -->
-    <main class="relative z-10 max-w-4xl mx-auto px-4 pt-6 space-y-12">
+    <!-- Main Content -->
+    <div class="container" id="mainContent" style="display:none;">
+        
+        <header>
+            <h1>Happy 1st Anniversary ❤️</h1>
+            <p>Ek saal saath hone ki pyaari si journey</p>
+        </header>
 
-        <!-- 1. HERO SECTION -->
-        <section class="text-center space-y-6 pt-6">
-            <div class="inline-block px-4 py-1.5 rounded-full glass-card text-rose-300 text-sm font-semibold tracking-wide border border-rose-500/30">
-                1 Year Together
-            </div>
-            
-            <h1 class="text-5xl md:text-7xl cursive-font font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-100 via-rose-300 to-rose-100 drop-shadow-xl leading-snug">
-                Happy 1st Anniversary ❤️
-            </h1>
-            
-            <p class="text-base md:text-lg text-rose-200/90 max-w-xl mx-auto font-light leading-relaxed">
-                Pata hi nahi chala ek saal kab beet gaya tum meri life ka sabse pyaara part ho aur sach kahun toh tumhare bina ab din hi adhura lagta hai
-            </p>
-
-            <!-- Counter Box -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 max-w-2xl mx-auto pt-4">
-                <div class="glass-card p-4 rounded-2xl border border-rose-500/20 text-center">
-                    <span class="block text-3xl md:text-4xl font-bold text-rose-300 font-mono">365</span>
-                    <span class="text-xs uppercase tracking-wider text-rose-200/70">Days</span>
+        <!-- Counter Card -->
+        <div class="card">
+            <div class="section-title">Time We Have Been Together</div>
+            <div class="counter-grid">
+                <div class="counter-box">
+                    <div class="counter-number" id="days">365</div>
+                    <div class="counter-label">Days</div>
                 </div>
-                <div class="glass-card p-4 rounded-2xl border border-rose-500/20 text-center">
-                    <span class="block text-3xl md:text-4xl font-bold text-rose-300 font-mono">8,760</span>
-                    <span class="text-xs uppercase tracking-wider text-rose-200/70">Hours</span>
+                <div class="counter-box">
+                    <div class="counter-number" id="hours">8760</div>
+                    <div class="counter-label">Hours</div>
                 </div>
-                <div class="glass-card p-4 rounded-2xl border border-rose-500/20 text-center">
-                    <span class="block text-3xl md:text-4xl font-bold text-rose-300 font-mono">525,600</span>
-                    <span class="text-xs uppercase tracking-wider text-rose-200/70">Minutes</span>
+                <div class="counter-box">
+                    <div class="counter-number" id="minutes">0</div>
+                    <div class="counter-label">Mins</div>
                 </div>
-                <div class="glass-card p-4 rounded-2xl border border-rose-500/20 text-center">
-                    <span class="block text-3xl md:text-4xl font-bold text-rose-300 font-mono">Forever</span>
-                    <span class="text-xs uppercase tracking-wider text-rose-200/70">To Go</span>
+                <div class="counter-box">
+                    <div class="counter-number" id="seconds">0</div>
+                    <div class="counter-label">Secs</div>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- 2. MEMORY TIMELINE -->
-        <section class="space-y-6">
-            <div class="text-center space-y-1">
-                <h2 class="text-3xl md:text-4xl cursive-font text-rose-300">Our Timeline</h2>
-                <p class="text-xs md:text-sm text-rose-200/60">Tap karke padho humari pyaari yaadein</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Memory Item 1 -->
-                <div class="glass-card p-5 rounded-2xl cursor-pointer hover:border-rose-400/50 transition-all border border-rose-500/20" onclick="toggleMemory('mem1')">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-300 font-bold text-sm">01</div>
-                            <div>
-                                <h3 class="font-semibold text-rose-100">Where It Get Started</h3>
-                                <p class="text-xs text-rose-300/80">Jab hum ek doosre ko nahi jaante the</p>
-                            </div>
-                        </div>
-                        <i id="mem1-icon" class="fas fa-chevron-down text-rose-300/60 transition-transform"></i>
-                    </div>
-                    <div id="mem1" class="hidden mt-4 pt-3 border-t border-rose-500/20 text-sm text-rose-200/80 space-y-2">
-                        <p>Jab humne start kiya tha tab hum ek doosre ko jaante bhi nahi the normal baatein hoti thi par mujhe bilkul andaza nahi tha ki tum meri life ka itna bada part ban jaoge aur dekho aaj haal yeh hai ki ek doosre ke bina rehna mushkil lagta hai</p>
-                    </div>
+        <!-- Timeline Card -->
+        <div class="card">
+            <div class="section-title">Our Timeline</div>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-date">Day 1</div>
+                    <div class="timeline-text">Jab humari baat shuru hui thi</div>
                 </div>
-
-                <!-- Memory Item 2 -->
-                <div class="glass-card p-5 rounded-2xl cursor-pointer hover:border-rose-400/50 transition-all border border-rose-500/20" onclick="toggleMemory('mem2')">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-300 font-bold text-sm">02</div>
-                            <div>
-                                <h3 class="font-semibold text-rose-100">Our Special Connection</h3>
-                                <p class="text-xs text-rose-300/80">Chats aur messages ki baatein</p>
-                            </div>
-                        </div>
-                        <i id="mem2-icon" class="fas fa-chevron-down text-rose-300/60 transition-transform"></i>
-                    </div>
-                    <div id="mem2" class="hidden mt-4 pt-3 border-t border-rose-500/20 text-sm text-rose-200/80 space-y-2">
-                        <p>Hum abhi tak kabhi mile nahi hain aur call par bhi bohot rarely baat hoti hai par fir bhi lagta nahi ki hum door hain chats par text messages ke zariye humari alag hi bonding ban gayi hai</p>
-                    </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">First Few Months</div>
+                    <div class="timeline-text">Jab humne ek doosre ko samjha aur baatein badhne lagi</div>
                 </div>
-
-                <!-- Memory Item 3 -->
-                <div class="glass-card p-5 rounded-2xl cursor-pointer hover:border-rose-400/50 transition-all border border-rose-500/20" onclick="toggleMemory('mem3')">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-300 font-bold text-sm">03</div>
-                            <div>
-                                <h3 class="font-semibold text-rose-100">Understanding Each Other</h3>
-                                <p class="text-xs text-rose-300/80">Bina mile bhi itna samjhna</p>
-                            </div>
-                        </div>
-                        <i id="mem3-icon" class="fas fa-chevron-down text-rose-300/60 transition-transform"></i>
-                    </div>
-                    <div id="mem3" class="hidden mt-4 pt-3 border-t border-rose-500/20 text-sm text-rose-200/80 space-y-2">
-                        <p>Bina mile bhi tum mere text padhkar samajh jaati ho ki mera mood kaisa hai thodi bohot nok jhok aur bohot saara pyaar bas aise hi sab chal raha hai</p>
-                    </div>
-                </div>
-
-                <!-- Memory Item 4 -->
-                <div class="glass-card p-5 rounded-2xl cursor-pointer hover:border-rose-400/50 transition-all border border-rose-500/20" onclick="toggleMemory('mem4')">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-300 font-bold text-sm">04</div>
-                            <div>
-                                <h3 class="font-semibold text-rose-100">1 Year Completed</h3>
-                                <p class="text-xs text-rose-300/80">Aaj ka din</p>
-                            </div>
-                        </div>
-                        <i id="mem4-icon" class="fas fa-chevron-down text-rose-300/60 transition-transform"></i>
-                    </div>
-                    <div id="mem4" class="hidden mt-4 pt-3 border-t border-rose-500/20 text-sm text-rose-200/80 space-y-2">
-                        <p>Aaj pure ek saal ho gaye humare relationship ko sach me time kitna jaldi nikal gaya bas aage bhi humesha aise hi rehna hai aur ek din zaroor milna hai</p>
-                    </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">Today</div>
+                    <div class="timeline-text">Pura 1 saal ho gaya sath me</div>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- 3. OPEN WHEN DIGITAL ENVELOPES -->
-        <section class="space-y-6">
-            <div class="text-center space-y-1">
-                <h2 class="text-3xl md:text-4xl cursive-font text-rose-300">Open When Letters</h2>
-                <p class="text-xs md:text-sm text-rose-200/60">Jab bhi mood kare inme se ek letter open kar lena</p>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <!-- Envelope 1 (Restored Original Square Flap Envelope Style) -->
-                <div onclick="openLetter('missMe')" class="glass-card aspect-square p-4 rounded-2xl cursor-pointer hover:scale-105 transition-all duration-300 flex flex-col items-center justify-between text-center border border-rose-500/30 group relative overflow-hidden">
-                    <div class="w-full flex justify-end">
-                        <span class="text-[10px] text-rose-300/60 font-mono">LETTER 01</span>
-                    </div>
-                    <div class="my-auto space-y-3">
-                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-500/30 to-rose-700/30 border border-rose-400/30 flex items-center justify-center text-rose-300 mx-auto group-hover:bg-rose-600 group-hover:text-white transition-all duration-300 shadow-md">
-                            <i class="fas fa-envelope-open-text text-3xl"></i>
-                        </div>
-                        <h3 class="text-sm font-semibold text-rose-100 group-hover:text-white transition-colors">Open when you miss me</h3>
-                    </div>
-                    <div class="text-[11px] text-rose-300/80 font-medium py-1 px-3 rounded-full bg-rose-500/10 border border-rose-500/20">
-                        Tap to open 💌
-                    </div>
+        <!-- Open When Letters Grid -->
+        <div class="card">
+            <div class="section-title">Open When Letters</div>
+            <div class="open-when-grid">
+                <div class="letter-square" onclick="openLetter('sad')">
+                    <div class="icon">🥺</div>
+                    <div class="title">Open When You Are Sad</div>
                 </div>
+                <div class="letter-square" onclick="openLetter('miss')">
+                    <div class="icon">💬</div>
+                    <div class="title">Open When You Miss Me</div>
+                </div>
+                <div class="letter-square" onclick="openLetter('angry')">
+                    <div class="icon">😤</div>
+                    <div class="title">Open When You Are Angry</div>
+                </div>
+                <div class="letter-square" onclick="openLetter('love')">
+                    <div class="icon">❤️</div>
+                    <div class="title">Open When You Want Love</div>
+                </div>
+            </div>
+        </div>
 
-                <!-- Envelope 2 -->
-                <div onclick="openLetter('feelDown')" class="glass-card aspect-square p-4 rounded-2xl cursor-pointer hover:scale-105 transition-all duration-300 flex flex-col items-center justify-between text-center border border-rose-500/30 group relative overflow
+        <!-- Why I Love You Cards -->
+        <div class="card">
+            <div class="section-title">Why I Love You</div>
+            <div class="cards-list">
+                <div class="love-card">Tum meri har choti baat itne dhyaan se sunti ho</div>
+                <div class="love-card">Tumhara simple aura mujhe hamesha relax feel karata hai</div>
+                <div class="love-card">Tum baaki sabse bilkul alag ho</div>
+                <div class="love-card">Jab tum pareshan hoti ho tab bhi kitni pyaari lagti ho</div>
+            </div>
+        </div>
+
+        <!-- Love Coupons Grid -->
+        <div class="card">
+            <div class="section-title">Love Coupons</div>
+            <div class="coupons-grid">
+                <div class="coupon-card">🎟️ Win Any Argument Once</div>
+                <div class="coupon-card">🎟️ Ask Anything I Will Answer</div>
+                <div class="coupon-card">🎟️ Extra Attention Day</div>
+                <div class="coupon-card">🎟️ Unlimited Forgiveness</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Letter Modal -->
+    <div class="modal" id="letterModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeLetter()">✕</button>
+            <div class="modal-title" id="mTitle">Letter Title</div>
+            <div class="modal-body" id="mBody">Letter Text</div>
+        </div>
+    </div>
+
+    <script>
+        // Password Verification (Passcode: 2410)
+        function checkPassword() {
+            const input = document.getElementById('passInput').value;
+            const error = document.getElementById('errorMsg');
+            if (input === '2410') {
+                document.getElementById('password-overlay').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'flex';
+            } else {
+                error.style.display = 'block';
+            }
+        }
+
+        // Enter key support for password
+        document.getElementById('passInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
+        // Anniversary Counter logic (Assuming starting date 1 year ago)
+        const startDate = new Date();
+        startDate.setFullYear(startDate.getFullYear() - 1);
+
+        function updateCounter() {
+            const now = new Date();
+            const diff = now - startDate;
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor(diff / (1000 * 60));
+            const seconds = Math.floor(diff / 1000);
+
+            document.getElementById('days').innerText = days;
+            document.getElementById('hours').innerText = hours;
+            document.getElementById('minutes').innerText = minutes;
+            document.getElementById('seconds').innerText = seconds;
+        }
+        setInterval(updateCounter, 1000);
+        updateCounter();
+
+        // Letters Data
+        const letters = {
+            sad: {
+                title: "When You Are Sad",
+                body: "Agar tumhara mood kharab hai toh bas ek baar yaad rakho ki main hamesha tumhare sath hu Aisa koi din nahi hota jab tum mere mind me na ho Sab theek ho jayega tension mat lo"
+            },
+            miss: {
+                title: "When You Miss Me",
+                body: "Jab bhi mera khyal aaye toh ek baar humare purane messages padh lena Ya bas sochna ki main bhi bilkul abhi tumhare baare me hi soch raha hu"
+            },
+            angry: {
+                title: "When You Are Angry",
+                body: "Gussa mat ho please Agar meri kisi baat se bura laga ho toh sorry bol raha hu Tum gusse me bhi bohot pyaari lagti ho"
+            },
+            love: {
+                title: "When You Want Love",
+                body: "Tum mere liye bohot special ho 1 saal me bohot kuch badla par mere feelings tumhare liye bilkul nahi badle Happy 1st anniversary"
+            }
+        };
+
+        function openLetter(key) {
+            document.getElementById('mTitle').innerText = letters[key].title;
+            document.getElementById('mBody').innerText = letters[key].body;
+            document.getElementById('letterModal').style.display = 'flex';
+        }
+
+        function closeLetter() {
+            document.getElementById('letterModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
